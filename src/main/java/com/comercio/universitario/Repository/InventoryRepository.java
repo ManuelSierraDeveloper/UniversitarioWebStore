@@ -1,4 +1,7 @@
 package com.comercio.universitario.Repository;
 
-public class InventoryRepository {
+import com.comercio.universitario.Entitys.Inventory;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 }

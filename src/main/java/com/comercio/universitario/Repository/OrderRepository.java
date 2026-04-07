@@ -1,4 +1,7 @@
 package com.comercio.universitario.Repository;
 
-public class OrderRepository {
+import com.comercio.universitario.Entitys.OrderItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OrderRepository extends JpaRepository<OrderItem, Long> {
 }

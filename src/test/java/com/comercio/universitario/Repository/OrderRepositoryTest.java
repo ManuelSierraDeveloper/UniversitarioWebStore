@@ -1,4 +1,4 @@
 package com.comercio.universitario.Repository;
 
-public class CustomerRepository {
+public class OrderRepositoryTest {
 }

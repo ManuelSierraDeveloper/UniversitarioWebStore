@@ -1,4 +1,7 @@
 package com.comercio.universitario.Repository;
 
-public class OrderStatusHistoryRepository {
+import com.comercio.universitario.Entitys.OrderStatusHistory;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OrderStatusHistoryRepository extends JpaRepository<OrderStatusHistory, Long> {
 }
