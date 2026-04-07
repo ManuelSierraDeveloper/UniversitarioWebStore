@@ -1,4 +1,7 @@
 package com.comercio.universitario.Repository;
 
-public class ProductRepository {
+import com.comercio.universitario.Entitys.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface  ProductRepository extends JpaRepository<Product, Long> {
 }
