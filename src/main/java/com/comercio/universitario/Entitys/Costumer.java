@@ -1,9 +1,11 @@
 package com.comercio.universitario.Entitys;
 
+import com.comercio.universitario.Entitys.Enums.CostumerStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(name = "customers")
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
@@ -11,14 +13,14 @@ import lombok.*;
 @Builder
 public class Costumer {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column
+    @Column(name = "fullname")
     private String fullName;
 
-    @Column
-    private Enum state;
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "activity_state")
+    private CostumerStatus state;
 
 }
