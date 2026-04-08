@@ -19,6 +19,13 @@ public class Product {
     @Column(name = "name_product")
     private String nameProduct;
 
+    @Column(name = "sku", unique = true)
+    private String sku;
+
+    @Builder.Default
+    @Column(name = "active")
+    private Boolean active = Boolean.TRUE;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categorie")
     private Category categorie;

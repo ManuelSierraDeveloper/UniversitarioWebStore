@@ -55,4 +55,51 @@ public class OrderItemRepositoryTest extends AbstractRepositoryIT {
         assertThat(topProducts.getFirst().getProduct().getNameProduct()).isEqualTo("Laptop");
         assertThat(topProducts.getFirst().getTotalSold()).isEqualTo(5L);
     }
+
+    @Test
+    void shouldFindTopProductsSoldByPeriod() {
+        Category category = categoryRepository.save(Category.builder().nameCategorie("Tecnologia").build());
+        Product laptop = productRepository.save(Product.builder().nameProduct("Laptop").sku("SKU-LAP").categorie(category).build());
+        Product mouse = productRepository.save(Product.builder().nameProduct("Mouse").sku("SKU-MOU").categorie(category).build());
+
+        Costumer customer = costomerRepository.save(Costumer.builder().fullName("Cliente").state(CostumerStatus.ACTIVE).build());
+
+        Order january = orderRepository.save(Order.builder().costumer(customer).stateOrder(OrderStatus.PAID).date(LocalDate.of(2026, 1, 15)).total(200L).build());
+        Order february = orderRepository.save(Order.builder().costumer(customer).stateOrder(OrderStatus.PAID).date(LocalDate.of(2026, 2, 10)).total(300L).build());
+
+        orderItemRepository.save(OrderItem.builder().order(january).product(laptop).cantProduct(2).priceProduct(100L).build());
+        orderItemRepository.save(OrderItem.builder().order(january).product(mouse).cantProduct(1).priceProduct(20L).build());
+        orderItemRepository.save(OrderItem.builder().order(february).product(mouse).cantProduct(5).priceProduct(20L).build());
+
+        List<OrderItemRepository.TopProductSoldView> topProducts = orderItemRepository.findTopProductsSoldByPeriod(
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 1, 31)
+        );
+
+        assertThat(topProducts).hasSize(2);
+        assertThat(topProducts.getFirst().getProduct().getNameProduct()).isEqualTo("Laptop");
+        assertThat(topProducts.getFirst().getTotalSold()).isEqualTo(2L);
+    }
+
+    @Test
+    void shouldFindTopCategoriesBySalesVolume() {
+        Category technology = categoryRepository.save(Category.builder().nameCategorie("Tecnologia").build());
+        Category books = categoryRepository.save(Category.builder().nameCategorie("Libros").build());
+        Product laptop = productRepository.save(Product.builder().nameProduct("Laptop").sku("SKU-LAP2").categorie(technology).build());
+        Product mouse = productRepository.save(Product.builder().nameProduct("Mouse").sku("SKU-MOU2").categorie(technology).build());
+        Product cleanCode = productRepository.save(Product.builder().nameProduct("Clean Code").sku("SKU-BOOK1").categorie(books).build());
+
+        Costumer customer = costomerRepository.save(Costumer.builder().fullName("Cliente").state(CostumerStatus.ACTIVE).build());
+        Order order = orderRepository.save(Order.builder().costumer(customer).stateOrder(OrderStatus.PAID).date(LocalDate.of(2026, 3, 1)).total(500L).build());
+
+        orderItemRepository.save(OrderItem.builder().order(order).product(laptop).cantProduct(3).priceProduct(100L).build());
+        orderItemRepository.save(OrderItem.builder().order(order).product(mouse).cantProduct(2).priceProduct(20L).build());
+        orderItemRepository.save(OrderItem.builder().order(order).product(cleanCode).cantProduct(1).priceProduct(50L).build());
+
+        List<OrderItemRepository.TopCategoryBySalesVolumeView> topCategories = orderItemRepository.findTopCategoriesBySalesVolume();
+
+        assertThat(topCategories).hasSize(2);
+        assertThat(topCategories.getFirst().getCategory().getNameCategorie()).isEqualTo("Tecnologia");
+        assertThat(topCategories.getFirst().getTotalSold()).isEqualTo(5L);
+    }
 }

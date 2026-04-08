@@ -5,17 +5,40 @@ import com.comercio.universitario.Entitys.Enums.OrderStatus;
 import com.comercio.universitario.Entitys.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
+    List<Order> findByCostumer_Id(Long costumerId);
+
     List<Order> findByCostumer_IdAndStateOrderAndDateBetween(
             Long costumerId,
             OrderStatus stateOrder,
             LocalDate startDate,
             LocalDate endDate
+    );
+
+    @Query("""
+            select o
+            from Order o
+            where (:costumerId is null or o.costumer.id = :costumerId)
+              and (:stateOrder is null or o.stateOrder = :stateOrder)
+              and (:startDate is null or o.date >= :startDate)
+              and (:endDate is null or o.date <= :endDate)
+              and (:totalMin is null or o.total >= :totalMin)
+              and (:totalMax is null or o.total <= :totalMax)
+            order by o.date desc, o.idOrder desc
+            """)
+    List<Order> findByCombinedFilters(
+            @Param("costumerId") Long costumerId,
+            @Param("stateOrder") OrderStatus stateOrder,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("totalMin") Long totalMin,
+            @Param("totalMax") Long totalMax
     );
 
     @Query("""

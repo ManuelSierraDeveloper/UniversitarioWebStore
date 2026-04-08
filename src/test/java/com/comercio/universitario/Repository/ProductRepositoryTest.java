@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,5 +33,36 @@ public class ProductRepositoryTest extends AbstractRepositoryIT {
         assertThat(products)
                 .extracting(Product::getNameProduct)
                 .containsExactlyInAnyOrder("Laptop", "Mouse");
+    }
+
+    @Test
+    void shouldFindProductBySku() {
+        Category category = categoryRepository.save(Category.builder().nameCategorie("Tecnologia").build());
+        Product saved = productRepository.save(
+                Product.builder()
+                        .nameProduct("Laptop")
+                        .sku("LAP-001")
+                        .categorie(category)
+                        .build()
+        );
+
+        Optional<Product> found = productRepository.findBySku("LAP-001");
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getIdProducts()).isEqualTo(saved.getIdProducts());
+    }
+
+    @Test
+    void shouldFindActiveProductsByCategory() {
+        Category category = categoryRepository.save(Category.builder().nameCategorie("Tecnologia").build());
+
+        productRepository.save(Product.builder().nameProduct("Activo 1").sku("ACT-1").active(true).categorie(category).build());
+        productRepository.save(Product.builder().nameProduct("Activo 2").sku("ACT-2").active(true).categorie(category).build());
+        productRepository.save(Product.builder().nameProduct("Inactivo").sku("INA-1").active(false).categorie(category).build());
+
+        List<Product> products = productRepository.findByCategorie_IdCategorieAndActiveTrue(category.getIdCategorie());
+
+        assertThat(products).hasSize(2);
+        assertThat(products).extracting(Product::getNameProduct).containsExactlyInAnyOrder("Activo 1", "Activo 2");
     }
 }

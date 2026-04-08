@@ -42,6 +42,43 @@ public class OrderRepositoryTest extends AbstractRepositoryIT {
     }
 
     @Test
+    void shouldFindOrdersByCustomer() {
+        Costumer juan = costomerRepository.save(Costumer.builder().fullName("Juan").state(CostumerStatus.ACTIVE).build());
+        Costumer maria = costomerRepository.save(Costumer.builder().fullName("Maria").state(CostumerStatus.ACTIVE).build());
+
+        orderRepository.save(Order.builder().costumer(juan).stateOrder(OrderStatus.PAID).date(LocalDate.of(2026, 1, 10)).total(100L).build());
+        orderRepository.save(Order.builder().costumer(juan).stateOrder(OrderStatus.CREATED).date(LocalDate.of(2026, 1, 12)).total(200L).build());
+        orderRepository.save(Order.builder().costumer(maria).stateOrder(OrderStatus.PAID).date(LocalDate.of(2026, 1, 15)).total(400L).build());
+
+        List<Order> juanOrders = orderRepository.findByCostumer_Id(juan.getId());
+
+        assertThat(juanOrders).hasSize(2);
+        assertThat(juanOrders).extracting(Order::getCostumer).allMatch(costumer -> costumer.getId().equals(juan.getId()));
+    }
+
+    @Test
+    void shouldFindOrdersUsingAllCombinedFilters() {
+        Costumer juan = costomerRepository.save(Costumer.builder().fullName("Juan").state(CostumerStatus.ACTIVE).build());
+
+        orderRepository.save(Order.builder().costumer(juan).stateOrder(OrderStatus.PAID).date(LocalDate.of(2026, 1, 10)).total(100L).build());
+        orderRepository.save(Order.builder().costumer(juan).stateOrder(OrderStatus.PAID).date(LocalDate.of(2026, 1, 11)).total(450L).build());
+        orderRepository.save(Order.builder().costumer(juan).stateOrder(OrderStatus.CREATED).date(LocalDate.of(2026, 1, 12)).total(300L).build());
+        orderRepository.save(Order.builder().costumer(juan).stateOrder(OrderStatus.PAID).date(LocalDate.of(2026, 2, 1)).total(500L).build());
+
+        List<Order> filtered = orderRepository.findByCombinedFilters(
+                juan.getId(),
+                OrderStatus.PAID,
+                LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 1, 31),
+                200L,
+                460L
+        );
+
+        assertThat(filtered).hasSize(1);
+        assertThat(filtered.getFirst().getTotal()).isEqualTo(450L);
+    }
+
+    @Test
     void shouldCalculateMonthlyRevenue() {
         Costumer customer = costomerRepository.save(Costumer.builder().fullName("Cliente").state(CostumerStatus.ACTIVE).build());
 
